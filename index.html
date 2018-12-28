@@ -165,11 +165,11 @@
     }
 
     function planeworld(x, y) {
-      if (xi < 0 || xi >= world_x) return;
-      if (yi < 0 || yi >= world_y) return;
+      if (x < 0 || x >= world_x) return;
+      if (y < 0 || y >= world_y) return;
       return {
-        x: xi,
-        y: yi
+        x: x,
+        y: y
       };
     }
 
@@ -183,8 +183,8 @@
 
     function tubeworld(x, y) {
       return {
-        x: tubecell(xi, world_x),
-        y: tubecell(yi, world_y)
+        x: tubecell(x, world_x),
+        y: tubecell(y, world_y)
       };
     }
 
