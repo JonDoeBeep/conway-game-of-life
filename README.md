@@ -2,7 +2,7 @@
 
 javascript and html canvas version of conway's game of life simulation
 
-[conway's game of life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
+[conway's game of life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) on wikipedia
 
 # view the sample 
 
