@@ -13,3 +13,7 @@ javascript and html canvas version of conway's game of life simulation
 
 [open conway's game of life on codepen](https://codepen.io/anon/pen/LMzpEr)
 -->
+
+# read the full article
+
+https://another-software-development-blog.blogspot.com/2018/12/conways-game-of-life.html
