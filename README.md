@@ -8,6 +8,8 @@ javascript and html canvas version of conway's game of life simulation
 
 [open conway's game of life](https://kr-g.github.io/conway-game-of-life/)
 
+<!--
 # make changes on codepen.io
 
 [open conway's game of life on codepen](https://codepen.io/anon/pen/LMzpEr)
+-->
