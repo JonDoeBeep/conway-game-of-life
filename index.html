@@ -1,0 +1,214 @@
+<html>
+<!--
+    use codepen to fork
+    https://codepen.io/anon/pen/LMzpEr
+-->
+
+<head>
+  <title>
+    conways game of life
+  </title>
+</head>
+
+<body>
+
+  <div id="head"></div>
+  <div id="body"></div>
+  <div id="panel"></div>
+  <div>
+    <div>
+      json
+      <button type='button' onclick='exportJson()'>export</button>
+      <button type='button' onclick='importJson()'>import</button>
+    </div>
+    <textarea cols=77 rows=15 id="jsondata"></textarea>
+  </div>
+
+  <script type="text/javascript">
+    /* --- */
+    const world_x = 400;
+    const world_y = 150;
+    const cell_size = 2;
+    var cell_perc = 50;
+    const cycle_time = 100;
+    var planarWorld = false;
+    /* --- */
+    function $id(id) {
+      return document.getElementById(id);
+    }
+
+    function exportJson() {
+      stopAll();
+      $id("jsondata").value = JSON.stringify(generations[oldgen]);
+    }
+
+    function importJson() {
+      stopAll();
+      resetAll();
+      var json = $id("jsondata").value;
+      generations[oldgen] = JSON.parse(json);
+      draw(oldgen);
+    }
+    $id("head").innerHTML = "<div>conway's game of live - dim " + world_x + " x " + world_y + "</div>";
+    $id("body").innerHTML = //
+      "<div><button type='button' onclick='calcNext()'>next round</button>" +
+      "<button type='button' onclick='runAll()'>run</button>" +
+      "<button type='button' onclick='stopAll()'>stop</button>" +
+      "population<input type='text' id='cell_perc' value='" + cell_perc + "' size='2'>% alive" +
+      "<button type='button' onclick='resetAll()'>reset round</button>" +
+      "<input type='checkbox' id='planeWorld' " + (planarWorld ? 'checked' : '') + " onclick='planarWorld=this.checked' > planar world" + "</div>" +
+      "<div id='counter'>0</div>";
+    $id("panel").innerHTML = '<div><canvas id="myCanvas" width="' + world_x * cell_size + '" height="' + world_y * cell_size + '" style="border:1px solid #000000;"></canvas></div>';
+    /* --- */
+    var canvas = $id("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    function clearBoard() {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, world_x * cell_size, world_y * cell_size);
+    }
+
+    function cell(x, y, state) {
+      ctx.fillStyle = "#000000";
+      if (!state) {
+        ctx.fillStyle = "#ffffff";
+      }
+      ctx.fillRect(x * cell_size, y * cell_size, cell_size, cell_size);
+    }
+
+    function getEmptyGeneration(world_x1, world_y1) {
+      var mat = Array(world_y1);
+      for (i = 0; i < world_y1; ++i) {
+        mat[i] = Array(world_x1);
+      }
+      return mat;
+    }
+    var generations = [getEmptyGeneration(world_x, world_y), getEmptyGeneration(world_x, world_y)];
+    var oldgen = 0;
+    var newgen = 1;
+    var cycle = 0;
+
+    function draw(gen) {
+      clearBoard();
+      var cnt = 0;
+      for (y = 1; y < world_y; ++y) {
+        for (x = 1; x < world_x; ++x) {
+          var alive = generations[gen][y][x];
+          if (alive) {
+            ++cnt;
+            cell(x, y, alive);
+          }
+        }
+      }
+      const accur = 1000;
+      var perc = Math.trunc(cnt / (world_x * world_y) * 100 * accur) / accur;
+      /* --- */
+      $id("counter").innerHTML = (100 - cell_perc) + "% at " + cycle_time + "ms planar: " + planarWorld + " cycle# " + cycle + " alive: " + cnt + " / " + perc + "%";
+    }
+    var theTimeout;
+
+    function runAll() {
+      stopAll();
+      calcNext();
+      theTimeout = setTimeout(function() {
+        runAll()
+      }, cycle_time);
+    }
+
+    function stopAll() {
+      clearTimeout(theTimeout);
+    }
+
+    function getRand() {
+      return Math.trunc(Math.random() * 100);
+    }
+
+    function resetAll() {
+      stopAll();
+      [oldgen, newgen] = [0, 1];
+      const probabilty = parseInt($id("cell_perc").value);
+      if (probabilty < 0 || probabilty > 100) {
+        alert("value must be between 0 and 100");
+        return;
+      }
+      cell_perc = 100 - probabilty;
+      // fill inital
+      for (y = 0; y < world_y; ++y) {
+        for (x = 0; x < world_x; ++x) {
+          const perc = getRand();
+          const alive = perc > cell_perc;
+          generations[oldgen][y][x] = alive;
+        }
+      }
+      cycle = 0;
+      draw(oldgen);
+    }
+    resetAll();
+
+    function calcNext() {
+      ++cycle;
+      // calc next generation
+      for (y = 0; y < world_y; ++y) {
+        for (x = 0; x < world_x; ++x) {
+          var cnt = countCells(x, y, oldgen);
+          var alive = generations[oldgen][y][x];
+          if (!alive && cnt == 3) {
+            alive = true;
+          } else if (alive && cnt < 2) {
+            alive = false;
+          } else if (alive && cnt > 3) {
+            alive = false;
+          }
+          generations[newgen][y][x] = alive;
+        }
+      }
+      draw(newgen);
+      // switch generations
+      [oldgen, newgen] = [newgen, oldgen];
+    }
+
+    function planeworld(x, y) {
+      if (xi < 0 || xi >= world_x) return;
+      if (yi < 0 || yi >= world_y) return;
+      return {
+        x: xi,
+        y: yi
+      };
+    }
+
+    function tubecell(p, max) {
+      if (p < 0)
+        p += max;
+      else if (p >= max)
+        p -= max;
+      return p;
+    }
+
+    function tubeworld(x, y) {
+      return {
+        x: tubecell(xi, world_x),
+        y: tubecell(yi, world_y)
+      };
+    }
+
+    function countCells(x, y, gen) {
+      var t = 0;
+      const fnworld = planarWorld ? planeworld : tubeworld;
+      for (yi = y - 1; yi <= y + 1; ++yi) {
+        for (xi = x - 1; xi <= x + 1; ++xi) {
+          if (xi == x && yi == y) continue;
+          var coord = fnworld(xi, yi);
+          if (coord && generations[gen][coord.y][coord.x]) {
+            ++t;
+          }
+        }
+      }
+      return t;
+    }
+  </script>
+
+</body>
+
+</html>
+
+
